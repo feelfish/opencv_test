@@ -1,0 +1,3 @@
+/home/dingyu/Code/opencv_test/debug/CMakeFiles/edit_cache.dir
+/home/dingyu/Code/opencv_test/debug/CMakeFiles/rebuild_cache.dir
+/home/dingyu/Code/opencv_test/debug/CMakeFiles/opencv_test.dir

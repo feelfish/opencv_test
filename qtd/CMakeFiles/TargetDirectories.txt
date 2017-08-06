@@ -1,3 +1,0 @@
-/home/ubuntu/code/opencv_test/qtd/CMakeFiles/edit_cache.dir
-/home/ubuntu/code/opencv_test/qtd/CMakeFiles/rebuild_cache.dir
-/home/ubuntu/code/opencv_test/qtd/CMakeFiles/opencv_test.dir

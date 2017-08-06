@@ -23,6 +23,7 @@ void bfsMat(cv::Mat& inputMat,cv::Mat& labelMat,const cv::Point2i& startP,int th
 void findLights(cv::Mat& inputMat);
 void findArmors(cv::Mat& inputMat,std::vector<cv::Rect> inRectList);
 void drawRoRect(cv::Mat& inputMat,const cv::RotatedRect& inRect);
+
 class lightInfo{
 public:
 	cv::Point2i lCenter;

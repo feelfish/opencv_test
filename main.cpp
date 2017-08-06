@@ -6,8 +6,8 @@ using namespace cv;
 using namespace std;
 using namespace chrono;
 
-const int imgWidth = 640;
-const int imgHeight = 480;
+const int imgWidth = 1280;
+const int imgHeight = 720;
 
 
 Mat imgSource;

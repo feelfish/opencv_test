@@ -500,12 +500,12 @@ void findLights(Mat& inputMat)
     //Mat grayBinMat = (grayImg > grayThresh);
 
     //equalizeHist(BGRSplit[0],BGRSplit[0]);
-    Mat colorBinMat =  (splitDiff > 130 );
+    Mat colorBinMat =  (splitDiff > 80 ); //100
     //colorBinMat = colorBinMat & grayBinMat;
     dilate(colorBinMat, colorBinMat, Mat::ones(11, 11, CV_8UC1));
-    colorBinMat = (colorBinMat & (bgrSplit[2] >220));
-    dilate(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
-    erode(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
+    colorBinMat = (colorBinMat & (bgrSplit[2] > 250));//blue [0]
+    //dilate(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
+    //erode(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
 
     vector<Rect> lRectList;
     vector<Rect> armRectList;
@@ -536,12 +536,16 @@ void findLights(Mat& inputMat)
 
      vector<vector<Point2i> > lContours;
      findContours(colorBinMat,lContours,CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE);
+     int cSizeSum = 0;
      for(int i = 0; i < lContours.size();++i){
         lRectList.push_back(boundingRect(lContours[i]));
         rectangle(imgSource, lRectList.back(), Scalar(0, 255, 255), 2);
+        cSizeSum += lContours[i].size();
      }
+     if(lContours.size() && cSizeSum/lContours.size());
      sort(lContours.begin(),lContours.end(),[](vector<Point2i>& a, vector<Point2i>& b)\
      {return a.size() > b.size();});
+
      if(lRectList.size()){
         for(int i = 0; i < lRectList.size(); ++i)
         {
@@ -565,7 +569,7 @@ void findLights(Mat& inputMat)
                 }
                 Rect armRect = lRectList[i] | lRectList[j];
                 float aRatio = armRect.width * 1.0 / armRect.height;
-                if( aRatio > 2.8 || aRatio < 1.5){
+                if( aRatio > 3 || aRatio < 1){
                     continue;
                 }
                 float xDis = abs(lRectList[i].x - lRectList[j].x) * 1.0;
@@ -575,13 +579,13 @@ void findLights(Mat& inputMat)
                 float arRatio = lRectList[i].area() * 1.0 / lRectList[j].area();
                 float siRatio = abs(lRectList[i].width * 1.0 / lRectList[i].height - \
                                     lRectList[j].width * 1.0 / lRectList[j].height);
-                if ((arRatio < 1.2 || arRatio > 0.8)  &&
-                    (widRatio < 1.2 || widRatio > 0.8) &&
-                    (heiRatio < 1.2 || heiRatio > 0.8) &&
+                if ((arRatio < 1.3 || arRatio > 0.7)  &&
+                    (widRatio < 1.3 || widRatio > 0.7) &&
+                    (heiRatio < 1.3 || heiRatio > 0.7) &&
                     (siRatio < 0.2) &&
                     xDis < 7 * (lRectList[i].width + lRectList[j].width) &&
-                    xDis < 2.3 * (lRectList[i].height + lRectList[j].height) &&
-                    xDis > 2 * (lRectList[i].width + lRectList[j].width) &&
+                    xDis < 3 * (lRectList[i].height + lRectList[j].height) &&
+                    xDis > 1.5 * (lRectList[i].width + lRectList[j].width) &&
                     yDis < 0.2 * (lRectList[i].height + lRectList[j].height))
                 {       
                     armRectList.push_back(armRect);
