@@ -370,7 +370,6 @@ void bfsMat(Mat &inputMat, Mat &labelMat, const Point2i &startP, int threshold, 
 }
 
 
-
 void findArmors(Mat& inputMat,vector<Rect> inRectList){
     Mat tempMat(inputMat.size(),CV_8UC1);
     for(int i = 0; i < inRectList.size();++i){
@@ -413,7 +412,7 @@ void findArmors(Mat& inputMat,vector<Rect> inRectList){
             else{
                 double cLen = arcLength(pCircles[0],true);
                 double cArea = contourArea(pCircles[0],false);
-                Rect cRect = boundingRect(pCircles[i]);
+                Rect cRect = boundingRect(pCircles[0]);
                 //drawContours(imgSource,pCircles,i,Scalar(255,255,255),4);
                 if (cLen > (cRect.width + cRect.height)  && cArea > (cRect.area()*5/8) &&
                     cArea > (bigRect.area()/10)  && cLen < 2*(cRect.width + cRect.height)
@@ -487,8 +486,8 @@ void getWorldInfo(){
     int heiIdx0,heiIdx1;
     int focalLen;
 
-    float camYaw = atan2(0.5*(widIdx0 + widIdx1) - 0.5*640,1.0*focalLen);
-    float camPitch = atan2(0.5*(heiIdx0 + heiIdx1) - 0.5*480,1.0*focalLen);
+    float camYaw = atan2(0.5*(widIdx0 + widIdx1) - 0.5*imgWidth,1.0*focalLen);
+    float camPitch = atan2(0.5*(heiIdx0 + heiIdx1) - 0.5*imgHeight,1.0*focalLen);
     float distance =(int) 1.0 * focalLen * aITWidth / abs(widIdx0 - widIdx1);
     double pRatio = (double) 1.0*((widIdx0 + widIdx1) + abs(widIdx0 - widIdx1))/ \
                      ((widIdx0 + widIdx1) - abs(widIdx0 - widIdx1));
@@ -501,12 +500,12 @@ void findLights(Mat& inputMat)
     //Mat grayBinMat = (grayImg > grayThresh);
 
     //equalizeHist(BGRSplit[0],BGRSplit[0]);
-    Mat colorBinMat =  (splitDiff > 100 );
+    Mat colorBinMat =  (splitDiff > 130 );
     //colorBinMat = colorBinMat & grayBinMat;
-    dilate(colorBinMat, colorBinMat, Mat::ones(13, 13, CV_8UC1));
+    dilate(colorBinMat, colorBinMat, Mat::ones(11, 11, CV_8UC1));
     colorBinMat = (colorBinMat & (bgrSplit[2] >220));
     dilate(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
-    erode(colorBinMat, colorBinMat, Mat::ones(3, 3, CV_8UC1));
+    erode(colorBinMat, colorBinMat, Mat::ones(5, 5, CV_8UC1));
 
     vector<Rect> lRectList;
     vector<Rect> armRectList;
@@ -541,7 +540,8 @@ void findLights(Mat& inputMat)
         lRectList.push_back(boundingRect(lContours[i]));
         rectangle(imgSource, lRectList.back(), Scalar(0, 255, 255), 2);
      }
-
+     sort(lContours.begin(),lContours.end(),[](vector<Point2i>& a, vector<Point2i>& b)\
+     {return a.size() > b.size();});
      if(lRectList.size()){
         for(int i = 0; i < lRectList.size(); ++i)
         {
@@ -565,7 +565,7 @@ void findLights(Mat& inputMat)
                 }
                 Rect armRect = lRectList[i] | lRectList[j];
                 float aRatio = armRect.width * 1.0 / armRect.height;
-                if( aRatio > 2.6 || aRatio < 1.8){
+                if( aRatio > 2.8 || aRatio < 1.5){
                     continue;
                 }
                 float xDis = abs(lRectList[i].x - lRectList[j].x) * 1.0;
@@ -579,15 +579,16 @@ void findLights(Mat& inputMat)
                     (widRatio < 1.2 || widRatio > 0.8) &&
                     (heiRatio < 1.2 || heiRatio > 0.8) &&
                     (siRatio < 0.2) &&
-                    xDis < 6.7 * (lRectList[i].width + lRectList[j].width) &&
-                    xDis < 2 * (lRectList[i].height + lRectList[j].height) &&
-                    xDis > 2.5 * (lRectList[i].width + lRectList[j].width) &&
-                    yDis < 0.15 * (lRectList[i].height + lRectList[j].height))
+                    xDis < 7 * (lRectList[i].width + lRectList[j].width) &&
+                    xDis < 2.3 * (lRectList[i].height + lRectList[j].height) &&
+                    xDis > 2 * (lRectList[i].width + lRectList[j].width) &&
+                    yDis < 0.2 * (lRectList[i].height + lRectList[j].height))
                 {       
                     armRectList.push_back(armRect);
                 }
             }
         }
+
         findArmors(bgrSplit[0],armRectList);
         int curRegiNum = hRegiList.size();
         vector<Rect> actRects;
